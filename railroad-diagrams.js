@@ -22,7 +22,14 @@ As well, several configuration constants are passed into the module function at 
 At runtime, these constants can be found on the Diagram class.
 */
 
-var temp = (function(options) {
+var options = {
+		VERTICAL_SEPARATION: 8,
+		ARC_RADIUS: 10,
+		DIAGRAM_CLASS: 'railroad-diagram',
+		STROKE_ODD_PIXEL_LENGTH: true,
+		INTERNAL_ALIGNMENT: 'center',
+}
+
 	function subclassOf(baseClass, superClass) {
 		baseClass.prototype = Object.create(superClass.prototype);
 		baseClass.prototype.$super = superClass.prototype;
@@ -323,6 +330,47 @@ var temp = (function(options) {
 			throw "Unknown value for Optional()'s 'skip' argument.";
 	}
 
+	function Group(item, caption) {
+		if(!(this instanceof Group)) return new Group(item, caption);
+		FakeSVG.call(this, 'g');
+		caption = caption || (new Skip);
+		this.item = wrapString(item);
+		this.caption = caption;
+		this.width = this.item.width;
+		var height = this.item.up + this.item.down;
+		if (caption)
+		{
+			height += Diagram.VERTICAL_SEPARATION+this.caption.up + this.caption.down;
+		}
+
+		this.up = this.item.up + 5;
+		this.down = height-this.up + 5;
+	}
+	subclassOf(Group, FakeSVG);
+	Group.prototype.needsSpace = true;
+	Group.prototype.format = function(x, y, width) {
+		// Hook up the two sides if this is narrower than its stated width.
+		var gaps = determineGaps(width, this.width);
+		Path(x,y).h(gaps[0]).addTo(this);
+		Path(x+gaps[0]+this.width,y).h(gaps[1]).addTo(this);
+		x += gaps[0];
+
+		FakeSVG('rect', {
+			x:x, y:y-this.up,
+			width:this.width, height:this.up+this.down, "class": "group"}).addTo(this);
+
+		this.item.format(x, y, this.width).addTo(this);
+
+		if (this.caption) {
+			var caption_y = y+this.item.down+Diagram.VERTICAL_SEPARATION+this.caption.up - 5;
+			var caption_x = x + (this.width - this.caption.width)/2;
+			this.caption.format(caption_x, caption_y, this.caption.width).addTo(this);
+		}
+
+		// FakeSVG('text', {x:x+this.width/2, y:y+4}, this.text).addTo(this);
+		return this;
+	}
+
 	function OneOrMore(item, rep) {
 		if(!(this instanceof OneOrMore)) return new OneOrMore(item, rep);
 		FakeSVG.call(this, 'g');
@@ -464,20 +512,23 @@ var temp = (function(options) {
 		return this;
 	}
 
-return [Diagram, Sequence, Choice, Optional, OneOrMore, ZeroOrMore, Terminal, NonTerminal, Comment, Skip]
-})(
-	{
-	VERTICAL_SEPARATION: 8,
-	ARC_RADIUS: 10,
-	DIAGRAM_CLASS: 'railroad-diagram',
-	STROKE_ODD_PIXEL_LENGTH: true,
-	INTERNAL_ALIGNMENT: 'center',
-	}
-);
+module.exports = {
+	"Diagram": Diagram,
+	"Sequence": Sequence,
+	"Choice": Choice,
+	"Optional": Optional,
+	"OneOrMore": OneOrMore,
+	"ZeroOrMore": ZeroOrMore,
+	"Terminal": Terminal,
+	"NonTerminal": NonTerminal,
+	"Comment": Comment,
+	"Group": Group,
+	"Skip": Skip
+};
 
 /*
 These are the names that the internal classes are exported as.
 If you would like different names, adjust them here.
 */
-['Diagram', 'Sequence', 'Choice', 'Optional', 'OneOrMore', 'ZeroOrMore', 'Terminal', 'NonTerminal', 'Comment', 'Skip']
-	.forEach(function(e,i) { window[e] = temp[i]; });
+//['Diagram', 'Sequence', 'Choice', 'Optional', 'OneOrMore', 'ZeroOrMore', 'Terminal', 'NonTerminal', 'Comment', 'Skip']
+//	.forEach(function(e,i) { window[e] = temp[i]; });
