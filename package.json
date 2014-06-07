@@ -7,10 +7,6 @@
   "devDependencies": {
   },
   "main": "railroad-diagrams.js",
-  "scripts": {
-//    "test": "node test/index.js",
-//    "prepublish": "npm test"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/klorenz/railroad-diagrams.git"
