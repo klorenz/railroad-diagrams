@@ -1,0 +1,23 @@
+{
+  "name": "railroad-diagrams",
+  "version": "0.1.0",
+  "description": "Create Railroad Syntax Diagrams in krowser context",
+  "keywords": [],
+  "dependencies": {},
+  "devDependencies": {
+  },
+  "main": "railroad-diagrams.js",
+  "scripts": {
+//    "test": "node test/index.js",
+//    "prepublish": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klorenz/railroad-diagrams.git"
+  },
+  "author": "tabatkins",
+  "contributors": [
+      "Kay-Uwe (Kiwi) Lorenz <kiwi@franka.dyndns.org> (http://quelltexter.org)"
+  ],
+  "license": "CC0"
+}
